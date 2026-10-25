@@ -1,0 +1,283 @@
+# Imad Saddik's website
+
+[![ci_pipeline_status](https://github.com/ImadSaddik/ImadSaddikWebsite/actions/workflows/ci.yml/badge.svg)](https://github.com/ImadSaddik/ImadSaddikWebsite/actions/workflows/ci.yml)
+[![Backend Coverage](https://img.shields.io/codecov/c/github/ImadSaddik/ImadSaddikWebsite?flag=backend&label=Backend%20Coverage&logo=codecov)](https://codecov.io/gh/ImadSaddik/ImadSaddikWebsite)
+[![Frontend Coverage](https://img.shields.io/codecov/c/github/ImadSaddik/ImadSaddikWebsite?flag=frontend&label=Frontend%20Coverage&logo=codecov)](https://codecov.io/gh/ImadSaddik/ImadSaddikWebsite)
+[![gitHub_license](https://img.shields.io/github/license/ImadSaddik/ImadSaddikWebsite)](https://github.com/ImadSaddik/ImadSaddikWebsite/blob/master/LICENSE)
+[![website_status](https://img.shields.io/website?url=https%3A%2F%2Fimadsaddik.com%2F&up_message=online&down_message=offline&label=imadsaddik.com)](https://imadsaddik.com/)
+
+The source code for my website, [imadsaddik.com](https://imadsaddik.com/), is stored in this repository. The frontend is built with [Vue.js](https://vuejs.org/), and the backend uses [FastAPI](https://fastapi.tiangolo.com/). The site is deployed on [DigitalOcean](https://www.digitalocean.com/), and the search feature is powered by [Meilisearch](https://www.meilisearch.com/).
+
+I created this website to bring together everything I do online. You will find helpful blog posts about programming, courses I have worked on, and astronomy tutorials if you enjoy space 🌝
+
+![readme_thumbnail](./images/readme_thumbnail.svg)
+
+## Project showcase
+
+Check out the video below for a quick tour of the website!
+
+[![Watch the Project Tour](./images/project_showcase_thumbnail.svg)](https://www.youtube.com/watch?v=OfBNIRxqGIU)
+
+## Project setup
+
+To set up the project locally, follow these steps:
+
+### Frontend
+
+Install `pnpm` if you don't have it using `npm`:
+
+```bash
+npm install -g pnpm@latest-10
+```
+
+> [!NOTE]
+> You can install `pnpm` using other methods. For more details, check the [official pnpm installation guide](https://pnpm.io/installation).
+
+After installing `pnpm`, navigate to the `frontend` directory and install the dependencies:
+
+```bash
+cd frontend
+pnpm install
+```
+
+Next, start the development server:
+
+```bash
+pnpm dev
+```
+
+Open your browser and go to `http://localhost:8080/` to view the frontend. Don't worry about the backend connection at this point.
+
+### Backend
+
+Navigate to the `backend` directory and create a virtual environment. I prefer to use [anaconda](https://www.anaconda.com/), but you can also use `venv`, `uv`, or any other tool of your choice.
+
+```bash
+# Using conda
+conda create -n venv python=3.13 -y
+conda activate venv
+
+# Using venv
+python -m venv venv
+source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+```
+
+Next, install the required dependencies. Don't forget to activate your virtual environment if you haven't done so already:
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Now, create a `.env` file by copying the example file. You don't need to modify anything once you copy it:
+
+```bash
+cp .env.example .env
+```
+
+Finally, start the FastAPI development server:
+
+```bash
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+You are almost done! The next and final step is to start Meilisearch, and populate it with data. This will enable the search functionality, list blogs, courses, and more.
+
+Both the backend and frontend are ready for use.
+
+### Configuration
+
+The backend uses a `.env` file to manage configuration:
+
+- `MEILISEARCH_URL`: The URL of your Meilisearch instance (default: `http://localhost:7700`).
+- `MEILISEARCH_MASTER_KEY`: The master key to secure your search engine. **Must match** the key used when starting Meilisearch.
+- `MEILISEARCH_INDEX_NAME`: The name of the index to store articles (default: `articles`).
+- `ENVIRONMENT`: Set to `development` or `production`.
+
+### Meilisearch
+
+#### Installation
+
+Before installing Meilisearch, decide where you want to store the Meilisearch data. Create a directory for Meilisearch data storage somewhere on your system, for example:
+
+```bash
+mkdir -p ~/meilisearch_data
+```
+
+Now, move to that directory and download the latest stable release of Meilisearch:
+
+```bash
+cd ~/meilisearch_data
+curl -L https://install.meilisearch.com | sh
+```
+
+Start Meilisearch:
+
+```bash
+./meilisearch --master-key='aStrongMasterKey'
+```
+
+> [!NOTE]
+> The master key used here is a dummy key for local development. In a production environment, make sure to use a strong and secure master key.
+>
+> `aStrongMasterKey` is the same key used in the `.env` file created earlier.
+
+If that last command fails with a permission error like this:
+
+```text
+2026-01-03T21:01:04.724569Z ERROR meilisearch: error=Permission denied (os error 13)
+Error: Permission denied (os error 13)
+```
+
+Retry starting Meilisearch with `sudo`:
+
+```bash
+sudo ./meilisearch --master-key='aStrongMasterKey'
+```
+
+The output should look like this:
+
+```text
+888b     d888          d8b 888 d8b                                            888
+8888b   d8888          Y8P 888 Y8P                                            888
+88888b.d88888              888                                                888
+888Y88888P888  .d88b.  888 888 888 .d8888b   .d88b.   8888b.  888d888 .d8888b 88888b.
+888 Y888P 888 d8P  Y8b 888 888 888 88K      d8P  Y8b     "88b 888P"  d88P"    888 "88b
+888  Y8P  888 88888888 888 888 888 "Y8888b. 88888888 .d888888 888    888      888  888
+888   "   888 Y8b.     888 888 888      X88 Y8b.     888  888 888    Y88b.    888  888
+888       888  "Y8888  888 888 888  88888P'  "Y8888  "Y888888 888     "Y8888P 888  888
+
+Config file path: "none"
+Database path: "./data.ms"
+Server listening on: "http://localhost:7700"
+Environment: "development"
+Commit SHA: "unknown"
+Commit date: "unknown"
+Package version: "1.18.0"
+
+Thank you for using Meilisearch!
+
+...
+```
+
+#### Populate Meilisearch with data
+
+To load the initial settings and documents into Meilisearch, run the following script from the project root:
+
+```bash
+python backend/scripts/seed_meilisearch.py
+```
+
+For more details about the seed data, refer to the [seed README](./backend/seed/README.md).
+
+#### Managing Meilisearch with a GUI
+
+Instead of interacting with Meilisearch only through code or scripts, you can use this [useful GUI tool](https://github.com/eyeix/meilisearch-ui) to manage your Meilisearch instance visually.
+
+To use this tool, go to [this hosted dashboard](https://meilisearch-ui.vercel.app/) and click on the plus button to add a new Meilisearch instance.
+
+![meilisearch_ui_add_instance](./images/add_instance_melisearch_ui.svg)
+_Click the plus button to add a new Meilisearch instance._
+
+> [!NOTE]
+> If you want to run the GUI tool locally, follow the instructions in the [meilisearch-ui repository](https://github.com/eyeix/meilisearch-ui).
+
+Depending on where your Meilisearch is running, the connection process is different:
+
+1. **Running locally:** If Meilisearch is running on your own computer, it works immediately. Meilisearch allows all connections by default, so you can simply enter `http://127.0.0.1:7700` as the host and your master key.
+
+2. **Running on a VM (Production):** If Meilisearch is running on your DigitalOcean Droplet, you cannot connect directly because the firewall blocks port 7700 for security. You should **not** open this port to the public. Instead, you must create a secure "bridge" ([SSH tunnel](https://en.wikipedia.org/wiki/Tunneling_protocol)) that maps your local port to the server's port.
+
+> [!IMPORTANT]
+> Meilisearch is already configured to accept connections. You only need to establish a secure tunnel to reach it.
+
+Open a new terminal window and run this command to create the bridge:
+
+```bash
+# Syntax: ssh -L <local_port>:127.0.0.1:<remote_port> <user>@<server_ip>
+ssh -L 7700:127.0.0.1:7700 -i ~/.ssh/<your_key_name> <your_username>@<your_droplet_ip>
+```
+
+Keep this terminal open. This command tells SSH to listen to port `7700` on your computer and forward any traffic securely to port `7700` on the server.
+
+In the dialog that appears, give your instance a name. Since you are using a bridge (or running locally), enter `http://127.0.0.1:7700` as the URL and the master key you used when starting Meilisearch.
+
+![meilisearch_ui_instance_details](./images/add_instance_details_ui.jpg)
+_Enter the details of your Meilisearch instance._
+
+Click "Confirm" to add the instance. You should now be able to manage your Meilisearch instance visually. You can view indexes, search documents, update settings, monitor activity and more.
+
+![meilisearch_ui_dashboard](./images/meilisearch_ui_dashboard.jpg)
+_The Meilisearch home page._
+
+## Run all services using tmux
+
+If you don't want to start each server in a separate window manually, you can use [run_all_services_tmux.sh](./bash_scripts/run_all_services_tmux.sh) to start everything in a `tmux` session.
+
+> [!WARNING]
+> Open the bash script and make sure that the paths, and commands are correct before running it.
+
+Now, install `tmux` if you don't have it already. On Debian or Ubuntu, you can install it using:
+
+```bash
+sudo apt install tmux
+```
+
+For other operating systems, refer to the [official tmux installation guide](https://github.com/tmux/tmux/wiki/Installing).
+
+After installing `tmux`, navigate to the `bash_scripts` directory and run the script:
+
+```bash
+cd bash_scripts
+./run_all_services_tmux.sh
+```
+
+This will create a new `tmux` session named `imad_saddik_personal_website` with three panes: one for Meilisearch, one for the frontend, and one for the backend.
+
+The backend pane is located at the bottom and spans the full width of the window, while the top half is split into two panes for Meilisearch (left) and the frontend (right).
+
+## Useful tools & scripts
+
+This repository contains several helper tools to assist with maintenance and analysis:
+
+- **[Dashboard analysis](./dashboard_analysis/README.md)**: A collection of tools to analyze Nginx logs using [GoAccess](https://goaccess.io/) data. Useful for tracking traffic and identifying bad actors.
+- **[Bash scripts](./bash_scripts/README.md)**: A set of utility scripts for tasks such as:
+  - Optimizing images (`optimize_jpeg_images.sh`, `optimize_png_images.sh`)
+  - Finding large media files (`find_media.sh`)
+  - Managing backups (`clean_backups.sh`)
+
+  Check the respective README files in those directories for more usage details.
+
+## Production infrastructure
+
+The `infrastructure/` directory contains configuration files and scripts used to deploy the website in a production environment:
+
+- **nginx/**: Configuration files for the Nginx web server, including Cloudflare-specific settings.
+- **supervisor/**: Configuration for [Supervisor](http://supervisord.org/) to manage the backend process.
+- **systemd/**: Systemd service files (e.g., for Meilisearch).
+- **scripts/**: Deployment and maintenance scripts, such as Gunicorn startup and monthly cleanup tasks.
+
+For more details, refer to the [infrastructure README](./infrastructure/README.md).
+
+## Contributing
+
+Contributions are welcome! I appreciate you taking the time to help improve the project.
+
+To ensure a smooth and collaborative process, please read the [contributing guide](./CONTRIBUTING.md) before you get started. It provides detailed instructions on:
+
+- Setting up the development environment
+- Running tests for both frontend and backend
+- Following the code style and linting guidelines
+- The pull request process
+
+If you find a typo or have a suggestion, feel free to open an issue or a pull request!
+
+## Licence
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for details.
+
+## Contact
+
+You can reach me through:
+
+- **Email** – [simad3647@gmail.com](mailto:simad3647@gmail.com).
+- **LinkedIn** – [Connect with me](https://www.linkedin.com/in/imadsaddik/).

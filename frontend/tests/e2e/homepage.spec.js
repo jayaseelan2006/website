@@ -1,0 +1,116 @@
+import { test, expect } from "@playwright/test";
+import { ROUTES } from "@/constants";
+
+test.describe("Homepage", () => {
+  test.describe("Happy path", () => {
+    test("should load and display the homepage correctly", async ({ page }) => {
+      await page.goto(ROUTES.HOME.path);
+      await page.waitForLoadState("networkidle");
+
+      await expect(page).toHaveTitle("Imad Saddik");
+    });
+
+    test("should display the hero section", async ({ page }) => {
+      await page.goto(ROUTES.HOME.path);
+
+      const heroSection = page.locator(".hero-section, .hero-container").first();
+      await expect(heroSection).toBeVisible();
+    });
+
+    test("should display the navbar with all navigation items", async ({ page }) => {
+      await page.goto(ROUTES.HOME.path);
+
+      const navbar = page.locator(".navbar-container");
+      await expect(navbar).toBeVisible();
+
+      await expect(page.locator('a.expanded-nav-bar-item:has-text("Blogs")')).toBeVisible();
+      await expect(page.locator('a.expanded-nav-bar-item:has-text("Courses")')).toBeVisible();
+      await expect(page.locator('a.expanded-nav-bar-item:has-text("Astronomy")')).toBeVisible();
+      await expect(page.locator('a.expanded-nav-bar-item:has-text("About me")')).toBeVisible();
+      await expect(page.locator('a.expanded-nav-bar-item:has-text("Hire me")')).toBeVisible();
+    });
+
+    test("should display the footer section", async ({ page }) => {
+      await page.goto(ROUTES.HOME.path);
+
+      const footer = page.locator(".footer-container");
+      await expect(footer).toBeVisible();
+
+      await expect(page.locator('.footer-column-title:has-text("Explore")')).toBeVisible();
+      await expect(page.locator('.footer-column-title:has-text("Connect")')).toBeVisible();
+      await expect(page.locator('.footer-column-title:has-text("My websites")')).toBeVisible();
+      await expect(page.locator('.footer-column-title:has-text("Support")')).toBeVisible();
+      await expect(page.locator('.footer-column-title:has-text("Preferences")')).toBeVisible();
+    });
+
+    test("should display card groups for blogs, courses and astronomy", async ({ page }) => {
+      await page.goto(ROUTES.HOME.path);
+      await page.waitForLoadState("networkidle");
+
+      const blogsGroup = page.locator('.cards-group-container:has-text("Blogs")').first();
+      await expect(blogsGroup).toBeVisible();
+      const blogsCards = blogsGroup.locator(".card-container");
+      const blogsCount = await blogsCards.count();
+      expect(blogsCount).toBeGreaterThanOrEqual(1);
+      expect(blogsCount).toBeLessThanOrEqual(3);
+
+      const coursesGroup = page.locator('.cards-group-container:has-text("Courses")').first();
+      await expect(coursesGroup).toBeVisible();
+      const coursesCards = coursesGroup.locator(".card-container");
+      const coursesCount = await coursesCards.count();
+      expect(coursesCount).toBeGreaterThanOrEqual(1);
+      expect(coursesCount).toBeLessThanOrEqual(3);
+
+      const universeGroup = page.locator('.cards-group-container:has-text("Universe")').first();
+      await expect(universeGroup).toBeVisible();
+      const universeCards = universeGroup.locator(".card-container");
+      const universeCount = await universeCards.count();
+      expect(universeCount).toBeGreaterThanOrEqual(1);
+      expect(universeCount).toBeLessThanOrEqual(3);
+    });
+
+    test("should have working call to action buttons", async ({ page }) => {
+      await page.goto(ROUTES.HOME.path);
+      await page.waitForLoadState("networkidle");
+
+      const buttonsToTest = [
+        { text: "Explore articles", url: ROUTES.BLOGS_HUB.path },
+        { text: "View courses", url: ROUTES.COURSES_HUB.path },
+        { text: "Read my full story", url: ROUTES.ABOUT_ME.path },
+        { text: "View all blogs", url: ROUTES.BLOGS_HUB.path },
+        { text: "View all courses", url: ROUTES.COURSES_HUB.path },
+        { text: "View all images", url: ROUTES.ASTRONOMY_HUB.path },
+      ];
+
+      for (const { text, url } of buttonsToTest) {
+        const button = page.locator(`button:has-text("${text}")`).first();
+        await button.scrollIntoViewIfNeeded();
+        await expect(button).toBeVisible(); // Wait for button to appear
+        await button.click();
+        await expect(page).toHaveURL(url);
+        await page.goto(ROUTES.HOME.path);
+        await page.waitForLoadState("networkidle");
+      }
+    });
+  });
+
+  test.describe("Unhappy path", () => {
+    test("should handle missing API gracefully", async ({ page }) => {
+      await page.route("**/api/**", (route) => route.abort());
+
+      await page.goto(ROUTES.HOME.path);
+      await page.waitForLoadState("networkidle");
+
+      const blogsGroup = page.locator('.cards-group-container:has-text("Blogs")').first();
+      const coursesGroup = page.locator('.cards-group-container:has-text("Courses")').first();
+      const universeGroup = page.locator('.cards-group-container:has-text("Universe")').first();
+
+      await expect(blogsGroup.locator(".card-container")).toHaveCount(0);
+      await expect(coursesGroup.locator(".card-container")).toHaveCount(0);
+      await expect(universeGroup.locator(".card-container")).toHaveCount(0);
+
+      const toasts = page.locator(".toast-message");
+      await expect(toasts).toHaveCount(3);
+    });
+  });
+});

@@ -1,0 +1,21 @@
+User-agent: *
+Allow: /
+
+Disallow: /analytics.html
+
+Disallow: /*.pdf$
+Allow: /resume.pdf$
+
+User-agent: Scrapy
+User-agent: magpie-crawler
+User-agent: CCBot
+User-agent: omgili
+User-agent: omgilibot
+User-agent: Node/simplecrawler
+Disallow: /
+
+# LLM Resources (https://llmstxt.org/)
+Allow: /llms.txt
+Allow: /llms-full.txt
+
+Sitemap: https://imadsaddik.com/sitemap.xml

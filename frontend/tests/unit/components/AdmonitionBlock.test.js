@@ -1,0 +1,61 @@
+import { mount } from "@vue/test-utils";
+import AdmonitionBlock from "@/components/AdmonitionBlock.vue";
+
+describe("AdmonitionBlock", () => {
+  const factory = (props = {}, slots = {}) =>
+    mount(AdmonitionBlock, {
+      props: {
+        title: "Info",
+        type: "info",
+        ...props,
+      },
+      slots: {
+        default: "Some helpful information",
+        ...slots,
+      },
+    });
+
+  it("renders title and slot content", () => {
+    const wrapper = factory();
+    expect(wrapper.find(".admonition-title").text()).toBe("Info");
+    expect(wrapper.find(".admonition-content").text()).toContain("Some helpful information");
+  });
+
+  it.each(["info", "tip", "warning", "danger"])("applies correct class for type '%s'", (type) => {
+    const wrapper = factory({ type, title: type });
+    expect(wrapper.find(".admonition").classes()).toContain(`admonition-${type}`);
+    expect(wrapper.find(".admonition-content").text()).toContain("Some helpful information");
+  });
+
+  it("defaults to info type when none provided", () => {
+    const wrapper = mount(AdmonitionBlock, { props: { title: "Default" }, slots: { default: "Default content" } });
+    expect(wrapper.find(".admonition").classes()).toContain("admonition-info");
+    expect(wrapper.find(".admonition-content").text()).toContain("Default content");
+  });
+
+  it("returns an empty string if title is an empty string", () => {
+    const wrapper = factory({ title: "" });
+    expect(wrapper.find(".admonition-title").text()).toBe("");
+  });
+
+  it("formats the string correctly", () => {
+    const wrapper = factory({ title: "tip" });
+    expect(wrapper.find(".admonition-title").text()).toBe("Tip");
+  });
+
+  it("renders title from title slot when provided", () => {
+    const wrapper = factory({}, { title: "Slot Title" });
+    expect(wrapper.find(".admonition-title").text()).toBe("Slot Title");
+  });
+
+  it("renders title slot with nested HTML", () => {
+    const wrapper = factory({}, { title: "Why <code>/usr/local/bin</code>?" });
+    expect(wrapper.find(".admonition-title code").exists()).toBe(true);
+    expect(wrapper.find(".admonition-title code").text()).toBe("/usr/local/bin");
+  });
+
+  it("prefers title slot over title prop when both are provided", () => {
+    const wrapper = factory({ title: "Prop Title" }, { title: "Slot Title" });
+    expect(wrapper.find(".admonition-title").text()).toBe("Slot Title");
+  });
+});

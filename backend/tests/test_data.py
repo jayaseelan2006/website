@@ -1,0 +1,276 @@
+from meilisearch_python_sdk import Client
+from meilisearch_python_sdk.models.settings import MeilisearchSettings
+
+from core.config import settings
+from enums.article import ArticleType
+from logger import logger
+
+TEST_INDEX_NAME = "articles_test"
+
+# This must mirror the production index settings.
+TEST_INDEX_SETTINGS = {
+    "displayedAttributes": ["*"],
+    "searchableAttributes": ["title", "content"],
+    "filterableAttributes": ["type", "year", "tags", "name"],
+    "sortableAttributes": ["claps_count", "creation_date", "read_count", "view_count"],
+    "rankingRules": ["words", "typo", "proximity", "attribute", "sort", "exactness"],
+    "stopWords": [],
+    "nonSeparatorTokens": [],
+    "separatorTokens": [],
+    "dictionary": [],
+    "synonyms": {},
+    "distinctAttribute": None,
+    "proximityPrecision": "byWord",
+    "typoTolerance": {
+        "enabled": True,
+        "minWordSizeForTypos": {"oneTypo": 5, "twoTypos": 9},
+        "disableOnWords": [],
+        "disableOnAttributes": [],
+        "disableOnNumbers": False,
+    },
+    "faceting": {"maxValuesPerFacet": 100, "sortFacetValuesBy": {"*": "alpha"}},
+    "pagination": {"maxTotalHits": 1000},
+    "searchCutoffMs": None,
+    "facetSearch": True,
+    "prefixSearch": "indexingTime",
+}
+
+TEST_DOCUMENTS = [
+    {
+        "id": "1",
+        "name": "elasticsearch-pre-filtering-with-knn-search",
+        "title": "Pre-filtering with KNN Search in Elasticsearch",
+        "content": "Learn how to use pre-filtering with KNN search in Elasticsearch for better results.",
+        "type": ArticleType.BLOG_POST.value,
+        "year": "2024",
+        "tags": ["elasticsearch", "knn", "search"],
+        "creation_date": 1700000000,
+        "view_count": 100,
+        "read_count": 50,
+        "claps_count": 10,
+    },
+    {
+        "id": "2",
+        "name": "elasticsearch-collapse-search-results",
+        "title": "Collapse Search Results in Elasticsearch",
+        "content": "How to collapse search results in Elasticsearch to group similar documents.",
+        "type": ArticleType.BLOG_POST.value,
+        "year": "2024",
+        "tags": ["elasticsearch", "collapse", "search"],
+        "creation_date": 1699000000,
+        "view_count": 80,
+        "read_count": 40,
+        "claps_count": 5,
+    },
+    {
+        "id": "3",
+        "name": "elasticsearch-change-heap-size",
+        "title": "Change Heap Size in Elasticsearch",
+        "content": "Guide to changing heap size in Elasticsearch for optimal performance.",
+        "type": ArticleType.BLOG_POST.value,
+        "year": "2023",
+        "tags": ["elasticsearch", "performance", "configuration"],
+        "creation_date": 1680000000,
+        "view_count": 200,
+        "read_count": 100,
+        "claps_count": 20,
+    },
+    {
+        "id": "8",
+        "name": "elasticsearch-index-lifecycle-management",
+        "title": "Index Lifecycle Management in Elasticsearch",
+        "content": "Learn how to manage index lifecycle policies in Elasticsearch to optimize storage.",
+        "type": ArticleType.BLOG_POST.value,
+        "year": "2024",
+        "tags": ["elasticsearch", "ilm", "storage"],
+        "creation_date": 1696000000,
+        "view_count": 90,
+        "read_count": 45,
+        "claps_count": 8,
+    },
+    {
+        "id": "9",
+        "name": "elasticsearch-aggregations",
+        "title": "Aggregations in Elasticsearch",
+        "content": "A comprehensive guide to using aggregations in Elasticsearch for data analysis.",
+        "type": ArticleType.BLOG_POST.value,
+        "year": "2024",
+        "tags": ["elasticsearch", "aggregations", "analytics"],
+        "creation_date": 1694000000,
+        "view_count": 110,
+        "read_count": 55,
+        "claps_count": 12,
+    },
+    {
+        "id": "10",
+        "name": "elasticsearch-mappings",
+        "title": "Understanding Mappings in Elasticsearch",
+        "content": "Deep dive into Elasticsearch mappings and how to define field types properly.",
+        "type": ArticleType.BLOG_POST.value,
+        "year": "2023",
+        "tags": ["elasticsearch", "mappings", "schema"],
+        "creation_date": 1685000000,
+        "view_count": 130,
+        "read_count": 65,
+        "claps_count": 15,
+    },
+    {
+        "id": "11",
+        "name": "elasticsearch-highlighting",
+        "title": "Highlighting Search Results in Elasticsearch",
+        "content": "How to highlight matching terms in Elasticsearch search results.",
+        "type": ArticleType.BLOG_POST.value,
+        "year": "2023",
+        "tags": ["elasticsearch", "highlighting", "search"],
+        "creation_date": 1683000000,
+        "view_count": 75,
+        "read_count": 38,
+        "claps_count": 7,
+    },
+    {
+        "id": "12",
+        "name": "elasticsearch-fuzzy-search",
+        "title": "Fuzzy Search in Elasticsearch",
+        "content": "Learn how to implement fuzzy search in Elasticsearch for typo-tolerant queries.",
+        "type": ArticleType.BLOG_POST.value,
+        "year": "2023",
+        "tags": ["elasticsearch", "fuzzy", "search"],
+        "creation_date": 1681000000,
+        "view_count": 95,
+        "read_count": 48,
+        "claps_count": 11,
+    },
+    {
+        "id": "13",
+        "name": "elasticsearch-geo-search",
+        "title": "Geo Search in Elasticsearch",
+        "content": "How to perform geo-spatial queries in Elasticsearch using geo_point data.",
+        "type": ArticleType.BLOG_POST.value,
+        "year": "2023",
+        "tags": ["elasticsearch", "geo", "spatial"],
+        "creation_date": 1678000000,
+        "view_count": 60,
+        "read_count": 30,
+        "claps_count": 4,
+    },
+    {
+        "id": "14",
+        "name": "elasticsearch-reindex-api",
+        "title": "Using the Reindex API in Elasticsearch",
+        "content": "Step-by-step guide to reindexing data in Elasticsearch with the Reindex API.",
+        "type": ArticleType.BLOG_POST.value,
+        "year": "2022",
+        "tags": ["elasticsearch", "reindex", "migration"],
+        "creation_date": 1660000000,
+        "view_count": 85,
+        "read_count": 42,
+        "claps_count": 9,
+    },
+    {
+        "id": "15",
+        "name": "elasticsearch-scroll-api",
+        "title": "Paginating Results with Scroll API in Elasticsearch",
+        "content": "How to paginate through large result sets using the Scroll API in Elasticsearch.",
+        "type": ArticleType.BLOG_POST.value,
+        "year": "2022",
+        "tags": ["elasticsearch", "pagination", "scroll"],
+        "creation_date": 1658000000,
+        "view_count": 70,
+        "read_count": 35,
+        "claps_count": 6,
+    },
+    {
+        "id": "4",
+        "name": "vue-js-for-beginners",
+        "title": "Vue.js for Beginners",
+        "content": "Getting started with Vue.js framework for building modern web applications.",
+        "type": ArticleType.COURSE_POST.value,
+        "year": "2024",
+        "tags": ["vue", "javascript", "frontend"],
+        "creation_date": 1698000000,
+        "view_count": 320,
+        "read_count": 150,
+        "claps_count": 45,
+    },
+    {
+        "id": "5",
+        "name": "fastapi-tutorial",
+        "title": "Building APIs with FastAPI",
+        "content": "Learn how to build fast and modern APIs using Python and FastAPI.",
+        "type": ArticleType.COURSE_POST.value,
+        "year": "2024",
+        "tags": ["python", "fastapi", "api"],
+        "creation_date": 1695000000,
+        "view_count": 400,
+        "read_count": 200,
+        "claps_count": 60,
+    },
+    {
+        "id": "6",
+        "name": "orion-constellation",
+        "title": "Exploring the Orion Constellation",
+        "content": "A journey through the stars of Orion, one of the most recognizable constellations.",
+        "type": ArticleType.ASTRONOMY_POST.value,
+        "year": "2024",
+        "tags": ["astronomy", "constellations", "stars"],
+        "creation_date": 1697000000,
+        "view_count": 150,
+        "read_count": 75,
+        "claps_count": 20,
+    },
+    {
+        "id": "7",
+        "name": "moon-phases",
+        "title": "Understanding Moon Phases",
+        "content": "Learn about the different phases of the Moon and why they occur.",
+        "type": ArticleType.ASTRONOMY_POST.value,
+        "year": "2023",
+        "tags": ["astronomy", "moon", "lunar"],
+        "creation_date": 1675000000,
+        "view_count": 280,
+        "read_count": 140,
+        "claps_count": 30,
+    },
+]
+
+
+def get_test_client() -> Client:
+    return Client(url=settings.MEILISEARCH_URL, api_key=settings.MEILISEARCH_MASTER_KEY)
+
+
+def delete_test_index_if_exists(client: Client) -> None:
+    deleted = client.delete_index_if_exists(TEST_INDEX_NAME)
+    if deleted:
+        logger.info(f"Deleted existing test index '{TEST_INDEX_NAME}'.")
+    else:
+        logger.info(f"Test index '{TEST_INDEX_NAME}' does not exist. Skipping delete.")
+
+
+def setup_test_index(client: Client) -> None:
+    delete_test_index_if_exists(client)
+    logger.info(f"Creating test index '{TEST_INDEX_NAME}' with production-like settings...")
+
+    index = client.create_index(TEST_INDEX_NAME, primary_key="id")
+
+    task = index.update_settings(MeilisearchSettings.model_validate(TEST_INDEX_SETTINGS))
+    client.wait_for_task(task.task_uid)
+
+    task = index.add_documents(TEST_DOCUMENTS)
+    client.wait_for_task(task.task_uid)
+
+    logger.info(f"Test index '{TEST_INDEX_NAME}' setup complete with {len(TEST_DOCUMENTS)} documents.")
+
+
+def seed_test_data() -> None:
+    logger.info(f"Connecting to Meilisearch at {settings.MEILISEARCH_URL}...")
+    client = get_test_client()
+    setup_test_index(client)
+
+    index = client.index(TEST_INDEX_NAME)
+    stats = index.get_stats()
+    logger.info(f"Index now contains {stats.number_of_documents} documents.")
+    logger.info("Test data seeding complete!")
+
+
+if __name__ == "__main__":
+    seed_test_data()

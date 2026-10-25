@@ -1,0 +1,8 @@
+export const MARKDOWN_IT_OPENING_TAG = 1;
+export const MARKDOWN_IT_SELF_CONTAINED_TAG = 0;
+export const MARKDOWN_IT_CLOSING_TAG = -1;
+
+export const REGEX_FULL_MATCH = 0;
+export const REGEX_FIRST_CAPTURE_GROUP = 1;
+export const REGEX_SECOND_CAPTURE_GROUP = 2;
+export const REGEX_THIRD_CAPTURE_GROUP = 3;

@@ -1,0 +1,112 @@
+<template>
+  <div class="admonition" :class="typeClass">
+    <p class="admonition-title">
+      <slot name="title">{{ formattedTitle }}</slot>
+    </p>
+    <div class="admonition-content">
+      <slot></slot>
+    </div>
+  </div>
+</template>
+
+<script>
+import { ADMONITION_TYPES } from "@/constants";
+
+export default {
+  name: "AdmonitionBlock",
+  props: {
+    type: {
+      type: String,
+      default: "info",
+      validator(value) {
+        return ADMONITION_TYPES.includes(value);
+      },
+    },
+    title: {
+      type: String,
+      default: "",
+    },
+  },
+  computed: {
+    typeClass() {
+      return `admonition-${this.type}`;
+    },
+    formattedTitle() {
+      if (!this.title) return "";
+      return this.title.charAt(0).toUpperCase() + this.title.slice(1);
+    },
+  },
+};
+</script>
+
+<style scoped>
+.admonition {
+  padding: var(--gap-md);
+  border-left: 5px solid;
+  margin: var(--gap-md) 0;
+}
+
+.admonition-tip {
+  background-color: var(--color-admonition-tip-background);
+  border-color: var(--color-admonition-tip-border);
+}
+
+.admonition-info {
+  background-color: var(--color-admonition-info-background);
+  border-color: var(--color-admonition-info-border);
+}
+
+.admonition-warning {
+  background-color: var(--color-admonition-warning-background);
+  border-color: var(--color-admonition-warning-border);
+}
+
+.admonition-danger {
+  background-color: var(--color-admonition-danger-background);
+  border-color: var(--color-admonition-danger-border);
+}
+
+.admonition .admonition-title {
+  font-weight: 600;
+  margin: 0;
+  margin-bottom: var(--gap-xs);
+  font-size: var(--font-size-small);
+}
+
+.admonition-tip .admonition-title {
+  color: var(--color-admonition-tip-border);
+}
+
+.admonition-info .admonition-title {
+  color: var(--color-admonition-info-border);
+}
+
+.admonition-warning .admonition-title {
+  color: var(--color-admonition-warning-border);
+}
+
+.admonition-danger .admonition-title {
+  color: var(--color-admonition-danger-border);
+}
+
+.admonition-content {
+  font-size: var(--font-size-small);
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.admonition-content :deep(p) {
+  margin: 0;
+}
+
+.admonition-content :deep(p:not(:last-child)) {
+  margin-bottom: var(--gap-md);
+}
+
+@media screen and (max-width: 576px) {
+  .admonition {
+    padding: var(--gap-sm);
+    border-left: 3px solid;
+  }
+}
+</style>

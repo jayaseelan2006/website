@@ -1,0 +1,10 @@
+fastapi==0.135.1
+python-dotenv==1.2.2
+pydantic==2.12.5
+pydantic-settings==2.15.0
+uvicorn==0.41.0
+httpx==0.28.1
+gunicorn==25.1.0
+slowapi==0.1.9
+aiosqlite==0.22.1
+meilisearch-python-sdk==7.0.4
